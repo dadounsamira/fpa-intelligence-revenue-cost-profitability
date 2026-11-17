@@ -1,0 +1,22 @@
+
+# Python virtual environment
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# PyCharm settings
+.idea/
+
+# Environment variables and secrets
+.env
+.env.*
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Large or downloaded datasets
+data/raw/
+data/processed/
