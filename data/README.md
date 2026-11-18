@@ -8,7 +8,7 @@ Audit completed 2026-11-17 (tracker steps 1.3.1 to 1.3.8). Findings below come f
 - **Publisher:** Statistics Canada, Quarterly Survey of Financial Statements (survey 2501).
 - **Page:** https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3310022601
 - **Licence:** Statistics Canada Open Licence, which allows sharing and redistribution, commercial or not, with attribution.
-- **Attribution:** Adapted from Statistics Canada, Table 33-10-0226-01, Quarterly balance sheet and income statement, by industry, seasonally adjusted. This does not constitute an endorsement by Statistics Canada of this product.
+-- **Attribution:** Adapted from Statistics Canada, Table 33-10-0226-01, Quarterly balance sheet and income statement, by industry, seasonally adjusted (x 1,000,000), 2026-08-24. This does not constitute an endorsement by Statistics Canada of this product.
 - **Downloaded:** 2026-11-17, with `src/fpa/ingest.py`.
 
 ## What the table is
