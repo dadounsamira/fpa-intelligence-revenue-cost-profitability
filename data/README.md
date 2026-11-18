@@ -1,44 +1,62 @@
 # Data: Statistics Canada Table 33-10-0226-01
 
-Audit started 2026-11-16 (tracker steps 1.3.1 to 1.3.8). Items marked **Verified** were read from Statistics Canada pages. Items marked **To check** need the downloaded CSV; run `src/fpa/audit_table.py` on it (see the end of this file).
+Audit completed 2026-11-17 (tracker steps 1.3.1 to 1.3.8). Findings below come from Statistics Canada's table page and metadata, and from running checks on the downloaded CSV.
+
+## Source and attribution
+
+- **Table:** 33-10-0226-01, Quarterly balance sheet and income statement, by industry, seasonally adjusted (x 1,000,000). DOI 10.25318/3310022601-eng.
+- **Publisher:** Statistics Canada, Quarterly Survey of Financial Statements (survey 2501).
+- **Page:** https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3310022601
+- **Licence:** Statistics Canada Open Licence, which allows sharing and redistribution, commercial or not, with attribution.
+- **Attribution:** Adapted from Statistics Canada, Table 33-10-0226-01, Quarterly balance sheet and income statement, by industry, seasonally adjusted. This does not constitute an endorsement by Statistics Canada of this product.
+- **Downloaded:** November 2026, with `src/fpa/ingest.py`.
 
 ## What the table is
 
-| Item | Finding | Status |
+| Item | Finding |
+| --- | --- |
+| Frequency and geography | Quarterly, Canada only |
+| Seasonal adjustment | Seasonally adjusted |
+| Units | Millions of dollars, nominal (not adjusted for inflation) |
+| Coverage | Q1 2020 (`2020-01`) to Q2 2026 (`2026-04`): 26 quarters, none missing |
+| Size | 55 industry groupings x 5 financial items x 26 quarters = 7,150 rows; 275 series |
+| Latest release | 2026-08-24 |
+| Items | Include total operating revenue, operating profit or loss, and sales of goods and services |
+| Hierarchy | Total, all industries splits into Total, non-financial industries and Total, finance and insurance industries. Totals add exactly (1,472,376 + 222,100 = 1,694,476 in 2026-04). |
+
+A series is one industry and one item followed over 26 quarters.
+
+## Known issues
+
+| Issue | Detail | How the project handles it |
 | --- | --- | --- |
-| Title | Quarterly balance sheet and income statement, by industry, seasonally adjusted (x 1,000,000) | Verified |
-| Table ID and DOI | 33-10-0226-01, DOI 10.25318/3310022601-eng | Verified |
-| Source survey | Quarterly Survey of Financial Statements (survey 2501) | Verified |
-| Coverage | Incorporated enterprises operating in Canada | Verified |
-| Frequency and geography | Quarterly, Canada only | Verified |
-| Seasonal adjustment | Seasonally adjusted | Verified |
-| Units | Millions of dollars | Verified |
-| Latest release | 2026-08-24 (page shows 2026-11-16 as date modified) | Verified |
-| Industry list | Includes total, financial and non-financial industries; past releases cite manufacturing sub-industries from this table, for example primary metal and fabricated metal product and machinery manufacturing | Partly verified. Full list **to check** |
-| Variables | Balance sheet and income statement items; releases cite operating revenue, operating profit and net income before taxes from this table | Partly verified. Full list **to check** |
-| First and last quarter, number of quarters | Not shown on the page | **To check** |
-| Footnotes, suppressed cells, symbols | The page refers to seven footnotes but their text did not load | **To check** |
-| Licence | The page links to Statistics Canada's Terms and conditions; text not read yet | **To check** |
+| 14 empty series | All are "Sales of goods and services" for the 14 finance and insurance groupings (the total and 13 sub-industries): 364 empty cells, flagged `..`. The other 261 series are complete. | Finance and insurance are excluded (DEC-009). |
+| No cost column | The table has revenue and operating profit but no cost. | Cost is derived as revenue minus operating profit (DEC-008). |
+| Insurance accounting break | IFRS 17 changed insurance reporting between Q4 2022 and Q1 2023 (metadata note 7). The non-financial total is not affected. | Totals that include insurance are not used (DEC-009). |
+| Derived variables | Since Q1 2020, operating revenue, expenses and operating profit are derived from other variables (note 6). This is consistent across all 26 quarters but would matter if older history were added. | Noted; no action needed for 2020 onward. |
+| Revisions | Statistics Canada can revise past values (note 5). | Record the download date; re-download to refresh. |
+| Sample survey | Covers incorporated enterprises in Canada and excludes government-controlled and not-for-profit corporations. Each value is an industry aggregate, not a single company. Health care appears only inside "Educational, health care and social assistance services". | Results describe these private-sector industries (DEC-006). |
+| 2020 and 2021 government support | Amounts include support such as the Canada Emergency Wage Subsidy, counted as revenue. 2020-04 shows a shock across many industries. | The 2020-04 and 2020-07 quarters are flagged, not deleted (DEC-007). |
+| Seasonally adjusted data | The seasonal pattern is already removed, so a seasonal naive baseline would be weak. | Baselines are naive and drift (DEC-010). |
+| Nominal dollars | Part of any growth is price inflation. | Amounts are used as published (DEC-011). |
 
-## What this means for the plan
+Symbols found in the data: only `..` (not available). The symbols `p` (preliminary), `r` (revised) and `E` (use with caution) do not appear.
 
-1. **The series is already seasonally adjusted.** A seasonal naive baseline (same quarter last year) is a weak comparison on adjusted data because the seasonal pattern has been removed. Use the plain naive forecast (last quarter) as the main baseline and keep seasonal naive as a secondary one. DEC-004 needs this change.
-2. **Not-seasonally-adjusted tables exist** for the same survey: 33-10-0224-01 (total all industries), 33-10-0225-01 (non-financial industries) and 33-10-0227-01 (financial industries). Switch to one of these only if the project needs to model seasonality itself. Compare which table gives the cost lines you need before deciding.
-3. **The survey is a sample of larger corporations.** Statistics Canada says it covers corporations in Canada except government-controlled and not-for-profit ones. Results describe that population, not every business.
-4. **2020 and 2021 amounts include government support** such as the Canada Emergency Wage Subsidy, which Statistics Canada counts as revenue for those businesses. Treat those quarters as a known structural break in the preprocessing spec.
-5. **Industry level matters.** Decide in step 1.4 whether to model one industry (for example manufacturing) or the non-financial total. The CSV will show which cost lines exist at each level.
+## What the project uses
+
+Nine industries and three measures (revenue, cost and operating profit), which makes 27 series (DEC-006): total non-financial industries; clothing, sporting goods and general merchandise stores; other wholesalers; construction; oil and gas extraction and support services; food and soft drink and ice manufacturing; professional, scientific and technical services; real estate; and telecommunications.
+
+See the decision log for the reasoning behind each choice.
+
+## Reproduce the data
+
+1. Run `python src/fpa/ingest.py`. It downloads the full table and unpacks `33100226.csv` and `33100226_MetaData.csv` into `data/raw/`.
+2. The `data/raw/` folder is git-ignored, so the raw files are not stored in the repository.
+3. Run `python src/fpa/audit_table.py data/raw/33100226.csv` to repeat the audit.
 
 ## Sources read
 
 - Table page: https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3310022601
 - The Daily, 2026-08-24, Quarterly financial statistics for enterprises, second quarter 2026: https://www150.statcan.gc.ca/n1/daily-quotidien/260824/dq260824a-eng.pdf
-- The Daily, 2021-05-25 (manufacturing sub-industry cited from this table): https://www150.statcan.gc.ca/n1/daily-quotidien/210525/dq210525a-eng.pdf
 - The Daily, 2021-02-24 (survey coverage and government-support note): https://www150.statcan.gc.ca/n1/daily-quotidien/210224/dq210224a-eng.htm
 - Survey page: https://www150.statcan.gc.ca/n1/en/surveys/2501
-
-## Finish the audit (about 10 minutes)
-
-1. Open the table page above. Under Download options, choose the full table as CSV (displayed values) and save it as `data/raw/33100226-eng.csv`. The `data/raw/` folder is git-ignored, so record the download date here: ______
-2. Run `python src/fpa/audit_table.py data/raw/33100226-eng.csv`.
-3. Paste the printed output into this file under a new heading, "CSV audit results", and tick steps 1.3.2 to 1.3.7 in the tracker.
-4. On the same page, read the footnotes and the Terms and conditions, and note the licence in `docs/data_biography.md`.
