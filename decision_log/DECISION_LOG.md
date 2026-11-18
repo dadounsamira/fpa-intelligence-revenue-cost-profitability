@@ -437,6 +437,82 @@ with `Path(__file__)`.
 ### Next Action
 Build the baselines and the validation split.
 
+## DEC-013 — Research Questions and Success Criterion
+
+**Date:** 2026-11-18
+**Phase:** 1 — Project Strategy & Feasibility
+**Status:** Accepted
+
+### Context
+The project needs research questions that are connected, tied to a
+real planning problem, and answerable with the audited data
+(26 quarters, 9 industries, revenue and derived cost).
+
+### Decision
+Main questions:
+- **RQ1 (forecasting):** For one-quarter-ahead forecasts of operating
+  revenue in the 9 industries, do statistical and machine-learning
+  models achieve a lower MAE than the naive and drift baselines, and
+  in which industries do they fail to beat them?
+- **RQ2 (cost behaviour):** By how much does operating cost change
+  when revenue changes by 1% in each industry, and does this differ
+  between steady industries (telecommunications) and volatile ones
+  (oil and gas)?
+- **RQ3 (risk):** If revenue falls by 5%, 10% or 20%, how many
+  percentage points does operating margin fall in each industry, and
+  which industries are most exposed?
+
+Secondary questions (only if time allows):
+- **S1:** Is it more accurate to forecast margin directly, or to
+  forecast revenue and cost separately and subtract?
+- **S2:** How much does keeping the 2020-04 and 2020-07 quarters in
+  the training data change forecast accuracy? (tests DEC-007)
+- **S3:** Which industries explain the rise in the non-financial
+  margin in 2026-04? Descriptive only, and partial, because only 8
+  component industries are in scope.
+
+Success criterion (set before seeing results): a model counts as
+better than the baselines when its MAE is lower than the better of
+naive and drift over the test quarters. RMSE and forecast bias are
+reported alongside. RQ2 and RQ3 have no pass or fail threshold; they
+report estimates with their uncertainty.
+
+Impact hypothesis: forecasts that beat the baselines, together with a
+measured cost response to revenue, would let an FP&A team plan next
+quarter's margin with smaller errors and see in advance which
+industries lose most margin in a downturn.
+
+### Alternatives Considered
+- RQ2 as "which cost lines are fixed or variable" (not answerable:
+  the table has no cost lines, see DEC-008)
+- A percentage threshold such as "10% below naive" (too unstable with
+  about 10 test quarters)
+- Asking whether the 2026-04 margin rise is a trend (cannot be
+  answered reliably with 26 quarters)
+
+### Rationale
+Each question builds on the previous one: RQ1 forecasts revenue, RQ2
+measures how cost follows revenue, and RQ3 uses that response for
+margin scenarios. All three use only data we have audited.
+
+### Evidence
+- RQ1: complete revenue series for all 9 industries, 26 quarters.
+- RQ2: a first check on the 9 industries (excluding 2020-04 and
+  2020-07) gave cost responses from about 0.55 (oil and gas) to about
+  1.21 (telecommunications); the non-financial total was 0.87.
+- RQ3: scenario arithmetic from the RQ2 estimates and current margins.
+
+### Risks and Limitations
+- About 10 test quarters make RQ1 results noisy.
+- RQ2 estimates rest on about 24 quarterly changes and are rough,
+  especially where revenue barely moves (telecommunications).
+- RQ3 is a what-if calculation, not a forecast, and assumes the cost
+  response stays stable.
+
+### Next Action
+Tick steps 1.7.1 to 1.7.6 in the tracker; use these questions in the
+project design document and the data biography.
+
 ---
 
 ## Template — Future Decisions
